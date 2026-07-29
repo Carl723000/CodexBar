@@ -615,6 +615,14 @@ enum CLIRenderer {
             !(provider == .devin && cost.period == "Extra usage balance"),
             !(provider == .claude && cost.used == 0 && cost.limit == 0 && cost.balance != nil)
         else { return }
+        if provider == .hyper,
+           cost.period == "Hypercredits balance",
+           let value = cost.balance
+        {
+            let balance = Self.hypercreditsString(value)
+            lines.append(self.labelValueLine("Balance", value: "\(balance) HC", useColor: context.useColor))
+            return
+        }
         // Fallback to cost/quota display if no primary rate window.
         let label = cost.currencyCode == "Quota" ? "Quota" : "Cost"
         let value = "\(String(format: "%.1f", cost.used)) / \(String(format: "%.1f", cost.limit))"
@@ -1018,6 +1026,11 @@ enum CLIRenderer {
         default:
             false
         }
+    }
+
+    private static func hypercreditsString(_ value: Double) -> String {
+        if value.rounded() == value { return String(format: "%.0f", value) }
+        return String(format: "%.2f", value)
     }
 
     private static func resetLineForDetailBackedWindow(
