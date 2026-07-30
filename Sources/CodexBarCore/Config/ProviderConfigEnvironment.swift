@@ -187,12 +187,8 @@ public enum ProviderConfigEnvironment {
             GroqSettingsReader.apiKeyEnvironmentKey
         case .llmproxy:
             LLMProxySettingsReader.apiKeyEnvironmentKey
-<<<<<<< HEAD
-        case .chutes, .poe, .litellm, .clawrouter, .factory, .sub2api, .neuralwatt, .zenmux, .deepinfra, .hyper, .aiand:
-=======
         case .chutes, .poe, .litellm, .clawrouter, .factory, .sub2api, .neuralwatt, .zenmux, .deepinfra, .aiand,
-             .xai:
->>>>>>> origin/main
+             .hyper, .xai:
             self.additionalAPIKeyEnvironmentKey(for: provider)
         default:
             nil
