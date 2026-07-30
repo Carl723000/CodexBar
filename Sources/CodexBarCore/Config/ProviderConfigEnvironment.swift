@@ -97,6 +97,8 @@ public enum ProviderConfigEnvironment {
             self.applyDeepSeekOverrides(base: base, config: config)
         case .deepgram:
             self.applyDeepgramOverrides(base: base, config: config)
+        case .xai:
+            self.applyXAIOverrides(base: base, config: config)
         case .azureopenai:
             self.applyAzureOpenAIOverrides(base: base, config: config)
         case .kimi:
@@ -185,7 +187,12 @@ public enum ProviderConfigEnvironment {
             GroqSettingsReader.apiKeyEnvironmentKey
         case .llmproxy:
             LLMProxySettingsReader.apiKeyEnvironmentKey
+<<<<<<< HEAD
         case .chutes, .poe, .litellm, .clawrouter, .factory, .sub2api, .neuralwatt, .zenmux, .deepinfra, .hyper, .aiand:
+=======
+        case .chutes, .poe, .litellm, .clawrouter, .factory, .sub2api, .neuralwatt, .zenmux, .deepinfra, .aiand,
+             .xai:
+>>>>>>> origin/main
             self.additionalAPIKeyEnvironmentKey(for: provider)
         default:
             nil
@@ -216,6 +223,8 @@ public enum ProviderConfigEnvironment {
             HyperSettingsReader.apiKeyEnvironmentKey
         case .aiand:
             AiAndSettingsReader.apiKeyEnvironmentKey
+        case .xai:
+            XAISettingsReader.apiKeyEnvironmentKey
         default:
             nil
         }
@@ -307,6 +316,25 @@ public enum ProviderConfigEnvironment {
 
         if let projectID = config.sanitizedWorkspaceID {
             env[DeepgramSettingsReader.projectIDEnvironmentKey] = projectID
+        }
+
+        return env
+    }
+
+    private static func applyXAIOverrides(
+        base: [String: String],
+        config: ProviderConfig?) -> [String: String]
+    {
+        guard let config else { return base }
+
+        var env = base
+
+        if let apiKey = config.sanitizedAPIKey {
+            env[XAISettingsReader.apiKeyEnvironmentKey] = apiKey
+        }
+
+        if let teamID = config.sanitizedWorkspaceID {
+            env[XAISettingsReader.teamIDEnvironmentKey] = teamID
         }
 
         return env

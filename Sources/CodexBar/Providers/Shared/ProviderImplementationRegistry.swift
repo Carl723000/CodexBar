@@ -79,6 +79,7 @@ enum ProviderImplementationRegistry {
         case .zenmux: ZenMuxProviderImplementation()
         case .aiand: AiAndProviderImplementation()
         case .zoommate: ZoomMateProviderImplementation()
+        case .xai: XAIProviderImplementation()
         }
     }
 

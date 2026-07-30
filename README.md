@@ -122,7 +122,7 @@ See [CLI configuration](docs/cli-configuration.md) for the full flow.
 - [Moonshot / Kimi API](docs/moonshot.md) — API key for Moonshot/Kimi API account balance tracking.
 - [Venice](docs/venice.md) — API key for DIEM or USD balance tracking.
 - [Codebuff](docs/codebuff.md) — API token (or `~/.config/manicode/credentials.json`) for credit balance + weekly rate limit.
-- [Crof](docs/crof.md) — API key for dollar credit balance and request quota tracking.
+- [Crof](docs/crof.md) — API key for dollar credit balance and optional request quota tracking.
 - [Command Code](docs/command-code.md) — Browser or manual cookies for monthly USD credits from Command Code billing.
 - [Qoder](docs/qoder.md) — Browser or manual cookies for Qoder big model credit usage.
 - [StepFun](docs/stepfun.md) — Username + password login for Step Plan rate limits (5‑hour + weekly windows) and subscription plan name.
@@ -139,6 +139,7 @@ See [CLI configuration](docs/cli-configuration.md) for the full flow.
 - [Chutes](docs/chutes.md) — API key for subscription usage, rolling and monthly quota windows, and pay-as-you-go quotas.
 - [Neuralwatt](docs/neuralwatt.md) — API key for subscription kWh usage and prepaid credit balance.
 - [ZenMux](docs/zenmux.md) — Management API key for rolling five-hour and seven-day quota windows plus PAYG balance.
+- [xAI](docs/xai.md) — Management API key + team ID for prepaid credit balance and daily platform spend.
 - Open to new providers: [provider authoring guide](docs/provider.md).
 
 ## Icon & Screenshot
