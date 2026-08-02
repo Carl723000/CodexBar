@@ -178,7 +178,8 @@ struct GeneralPane: View {
                     SettingsRowLabel(
                         L("Low Power Mode"),
                         subtitle: L(
-                            "Runs automatic provider, local usage, and storage refreshes no more often than every 30 minutes. Manual refresh remains available."))
+                            "Runs automatic provider, local usage, and storage refreshes no more often than every " +
+                                "30 minutes. Manual refresh remains available."))
                 }
 
                 Toggle(isOn: self.$settings.statusChecksEnabled) {
