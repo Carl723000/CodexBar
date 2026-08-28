@@ -72,7 +72,10 @@ struct CodexMenuOpenCostRefreshTests {
             options: options)
         #expect(changed.summary?.totalTokens == 120)
         let changedWork = recorder.snapshot()
-        #expect(changedWork.fullSnapshotReads == 1)
+        // A changed source takes one full snapshot for the scan and a second immediately before
+        // persistence. The save-side read is intentional: another CodexBar process or the CLI may
+        // have committed newer cache state after the scan began, so it must not be overwritten.
+        #expect(changedWork.fullSnapshotReads == 2)
         #expect(changedWork.tokenSnapshotRows > 0)
         #expect(changedWork.usageRows > 0)
 
