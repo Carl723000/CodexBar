@@ -163,10 +163,6 @@ enum CostUsageScanner {
         /// For interaction-triggered refreshes, check persisted file metadata before materializing
         /// parser rows and token snapshots. An unchanged corpus can answer exactly from day aggregates.
         var reuseCodexReportWhenSourcesAreUnchanged: Bool = false
-        /// Keep a previously indexed wider history window when a narrower caller refreshes it.
-        /// Low-power callers disable this so dormant dashboard history cannot keep ordinary scans
-        /// in catch-up indefinitely.
-        var retainWiderCodexCacheWindow: Bool = true
         var claudeLogProviderFilter: ClaudeLogProviderFilter = .all
         /// Force a full rescan, ignoring per-file cache and incremental offsets.
         var forceRescan: Bool = false
@@ -5377,8 +5373,6 @@ enum CostUsageScanner {
               cache.timeZoneIdentifier == range.calendar.timeZone.identifier,
               cache.codexScanCatchUpPending != true,
               cache.codexActiveLookbackState == nil,
-              options.retainWiderCodexCacheWindow
-              || (cache.scanSinceKey == range.scanSinceKey && cache.scanUntilKey == range.scanUntilKey),
               !cache.files.values.contains(where: {
                   $0.codexScanComplete == false || $0.hasBufferedCodexForkRetryLines
               })
@@ -5888,10 +5882,10 @@ enum CostUsageScanner {
             }
             try checkCancellation?()
 
-            Self.pruneCodexFilesOutsideWindow(
+            Self.pruneForceRescanFilesOutsideWindow(
                 cache: &cache,
                 range: range,
-                shouldPrune: options.forceRescan || !options.retainWiderCodexCacheWindow)
+                isForceRescan: options.forceRescan)
 
             let shouldDropAllUnscannedFiles = options.forceRescan || plan.rootsChanged || cache.files.isEmpty
                 || plan.needsProjectMetadataMigration
@@ -5926,8 +5920,7 @@ enum CostUsageScanner {
                 }
             }
 
-            let shouldRetainWiderWindow = options.retainWiderCodexCacheWindow
-                && !options.forceRescan && !plan
+            let shouldRetainWiderWindow = !options.forceRescan && !plan
                 .priorityMetadataChanged && !plan.needsTurnIDCacheMigration && !plan.needsProjectMetadataMigration
             let retainedSinceKey = shouldRetainWiderWindow
                 ? [cachedSinceKey, range.scanSinceKey].compactMap(\.self).min() ?? range.scanSinceKey

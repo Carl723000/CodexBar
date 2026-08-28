@@ -1345,12 +1345,12 @@ extension CostUsageScanner {
         }
     }
 
-    static func pruneCodexFilesOutsideWindow(
+    static func pruneForceRescanFilesOutsideWindow(
         cache: inout CostUsageCache,
         range: CostUsageDayRange,
-        shouldPrune: Bool)
+        isForceRescan: Bool)
     {
-        guard shouldPrune else { return }
+        guard isForceRescan else { return }
         for key in cache.files.keys {
             guard let old = cache.files[key] else { continue }
             guard !old.touchesCodexScanWindow(

@@ -79,8 +79,6 @@ extension UsageStore {
             && !force
         let summaryOnlyCodexRefresh = provider == .codex
             && (lightweightMenuOpen || lowPowerAutomaticCodexRefresh)
-        let retainWiderCodexCacheWindow = provider != .codex
-            || !self.settings.backgroundWorkLowPowerModeEnabled
         // Provider-specific by design: the Codex ledger owns pricing refresh while Bedrock resolves AWS environment.
         let allowPricingRefresh = provider != .codex || !self.settings.codexLocalSessionCostLedgerEnabled
         let environment = provider == .bedrock
@@ -104,7 +102,6 @@ extension UsageStore {
                     allowPricingRefresh: allowPricingRefresh,
                     includeProjectAndSessionBreakdowns: !summaryOnlyCodexRefresh,
                     reuseCodexReportWhenSourcesAreUnchanged: summaryOnlyCodexRefresh,
-                    retainWiderCodexCacheWindow: retainWiderCodexCacheWindow,
                     bypassScannerDebounce: true,
                     calendar: self.settings.costUsageBucketCalendar)
             }

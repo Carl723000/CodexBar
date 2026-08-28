@@ -225,7 +225,6 @@ public struct CostUsageFetcher: Sendable {
         includePiSessions: Bool = true,
         includeProjectAndSessionBreakdowns: Bool = true,
         reuseCodexReportWhenSourcesAreUnchanged: Bool = false,
-        retainWiderCodexCacheWindow: Bool = true,
         bypassScannerDebounce: Bool,
         calendar: Calendar? = nil) async throws -> CostUsageTokenSnapshot
     {
@@ -247,7 +246,6 @@ public struct CostUsageFetcher: Sendable {
             includePiSessions: includePiSessions,
             includeProjectAndSessionBreakdowns: includeProjectAndSessionBreakdowns,
             reuseCodexReportWhenSourcesAreUnchanged: reuseCodexReportWhenSourcesAreUnchanged,
-            retainWiderCodexCacheWindow: retainWiderCodexCacheWindow,
             bypassScannerDebounce: bypassScannerDebounce,
             scannerOptions: options)
     }
@@ -392,7 +390,6 @@ public struct CostUsageFetcher: Sendable {
         includePiSessions: Bool = true,
         includeProjectAndSessionBreakdowns: Bool = true,
         reuseCodexReportWhenSourcesAreUnchanged: Bool = false,
-        retainWiderCodexCacheWindow: Bool = true,
         bypassScannerDebounce: Bool = false,
         scannerOptions overrideScannerOptions: CostUsageScanner.Options? = nil,
         piScannerOptions overridePiScannerOptions: PiSessionCostScanner
@@ -497,7 +494,6 @@ public struct CostUsageFetcher: Sendable {
             forceRefresh: forceRefresh,
             bypassScannerDebounce: bypassScannerDebounce)
         options.reuseCodexReportWhenSourcesAreUnchanged = reuseCodexReportWhenSourcesAreUnchanged
-        options.retainWiderCodexCacheWindow = retainWiderCodexCacheWindow
         var resolvedPiOptions = overridePiScannerOptions ?? PiSessionCostScanner.Options()
         if resolvedPiOptions.cacheRoot == nil {
             resolvedPiOptions.cacheRoot = options.cacheRoot
@@ -546,7 +542,6 @@ public struct CostUsageFetcher: Sendable {
                 includePiSessions: includePiSessions,
                 includeProjectAndSessionBreakdowns: includeProjectAndSessionBreakdowns,
                 reuseCodexReportWhenSourcesAreUnchanged: reuseCodexReportWhenSourcesAreUnchanged,
-                retainWiderCodexCacheWindow: retainWiderCodexCacheWindow,
                 scannerOptions: options,
                 piScannerOptions: piOptions,
                 modelsDevClient: modelsDevClient,
