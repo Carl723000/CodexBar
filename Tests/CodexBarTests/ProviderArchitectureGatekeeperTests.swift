@@ -3153,6 +3153,23 @@ struct ProviderArchitectureGatekeeperTests {
             reason: "This exact app-runtime bridge coordinates provider-owned state through the shared controller."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/UsageStore+TokenCost.swift",
+            line: 77,
+            anchor: "let lowPowerAutomaticCodexRefresh = provider == .codex",
+            expectedProviderIDs: ["bedrock", "codex"],
+            expectedReferenceCount: 4,
+            expectedReferenceFingerprint: ["codex@0", "codex@3", "codex@6", "bedrock@7"],
+            reason: "This exact app-runtime bridge limits Codex summary work while preserving provider-owned pricing " +
+                "and environment selection."),
+        AllowedProviderConstruct(
+            path: "Sources/CodexBar/UsageStore+TokenCost.swift",
+            line: 117,
+            anchor: "provider == .codex,",
+            expectedProviderIDs: ["codex"],
+            expectedReferenceCount: 1,
+            expectedReferenceFingerprint: ["codex@0"],
+            reason: "This exact app-runtime bridge merges summary-only Codex results with previously cached details."),
+        AllowedProviderConstruct(
+            path: "Sources/CodexBar/UsageStore+TokenCost.swift",
             line: 301,
             anchor: "guard self.tokenSnapshotPublicationForCurrentProviderConfig(for: .codex) == nil else { return }",
             expectedProviderIDs: ["codex"],
