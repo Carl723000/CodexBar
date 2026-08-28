@@ -51,7 +51,8 @@ struct CodexMenuOpenCostRefreshTests {
             until: day,
             now: day.addingTimeInterval(2),
             options: options)
-        #expect(unchanged == cold)
+        #expect(unchanged.data == cold.data)
+        #expect(unchanged.summary == cold.summary)
         Self.expectSummaryOnly(recorder.snapshot())
 
         let handle = try FileHandle(forWritingTo: sessionURL)
@@ -82,7 +83,8 @@ struct CodexMenuOpenCostRefreshTests {
             until: day,
             now: day.addingTimeInterval(5),
             options: options)
-        #expect(settled == changed)
+        #expect(settled.data == changed.data)
+        #expect(settled.summary == changed.summary)
         Self.expectSummaryOnly(recorder.snapshot())
     }
 

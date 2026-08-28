@@ -21,7 +21,14 @@ struct SpendDashboardPublicationTests {
 
         #expect(!store.sharedSpendDashboardObservationStarted)
         #expect(store.sharedSpendDashboardControllerStorage == nil)
-        #expect(store.spendDashboardPublication == .empty)
+        let publication = store.spendDashboardPublication
+        #expect(publication.revision == 0)
+        #expect(publication.generation == 0)
+        #expect(publication.configuration == nil)
+        #expect(publication.loadedAt == .distantPast)
+        #expect(!publication.isRefreshing)
+        #expect(publication.inputs.isEmpty)
+        #expect(publication.sources.isEmpty)
     }
 
     @Test
