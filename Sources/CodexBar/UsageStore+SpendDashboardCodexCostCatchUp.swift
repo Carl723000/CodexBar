@@ -23,6 +23,14 @@ extension UsageStore {
             self.cancelSpendDashboardCodexCostCatchUp()
             return
         }
+        // In global low-power mode the hidden dashboard must not maintain a 365-day index.
+        // A visible dashboard passes `.accelerated`, which remains an explicit user action.
+        if self.settings.backgroundWorkLowPowerModeEnabled,
+           preferredMode != .accelerated
+        {
+            self.cancelSpendDashboardCodexCostCatchUp()
+            return
+        }
         // A user-requested stop must stay durable until they explicitly resume; background
         // synchronization would otherwise restart the worker behind their back.
         guard !self.spendDashboardCodexCostCatchUpStopRequested else { return }

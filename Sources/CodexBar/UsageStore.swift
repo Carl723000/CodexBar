@@ -74,6 +74,7 @@ extension UsageStore {
                 self.invalidateProviderAvailabilityCache()
                 self.probeLogs = [:]
                 guard self.startupBehavior.automaticallyStartsBackgroundWork else { return }
+                self.synchronizeSharedSpendDashboardPublicationForPowerMode()
                 self.startTimer()
                 self.updateProviderRuntimes()
                 let enabledNow = Set(self.settings.enabledProvidersOrdered(
@@ -362,7 +363,6 @@ final class UsageStore {
     @ObservationIgnored var tokenRefreshSequenceProvider: ProviderInstanceID?
     @ObservationIgnored var tokenRefreshSequenceIsForcedAllPass = false
     @ObservationIgnored var pendingForcedTokenRefresh = false
-    @ObservationIgnored var lastForcedTokenRefreshStartedAt: Date?
     @ObservationIgnored var tokenRefreshRetryProviders: Set<ProviderInstanceID> = []
     @ObservationIgnored var codexCostCatchUpTask: Task<Void, Never>?
     @ObservationIgnored var codexCostCatchUpToken: UUID?
@@ -551,7 +551,7 @@ final class UsageStore {
             loginShellPATH: LoginShellPathCache.shared.current?.joined(separator: ":"))
         guard self.startupBehavior.automaticallyStartsBackgroundWork else { return }
         self.hydrateCachedTokenSnapshots()
-        self.startSharedSpendDashboardPublication()
+        self.synchronizeSharedSpendDashboardPublicationForPowerMode()
         self.detectVersions()
         self.updateProviderRuntimes()
         Task { @MainActor [weak self] in
@@ -1449,7 +1449,11 @@ extension UsageStore {
         }
     }
 
-    func refreshTokenUsage(_ provider: UsageProvider, force: Bool) async {
+    func refreshTokenUsage(
+        _ provider: UsageProvider,
+        force: Bool,
+        lightweightMenuOpen: Bool = false) async
+    {
         guard ProviderDescriptorRegistry.descriptor(for: provider).tokenCost.supportsTokenCost else {
             self.resetTokenUsageState(for: provider)
             return
@@ -1530,6 +1534,7 @@ extension UsageStore {
             let snapshot = try await self.loadTokenUsageSnapshot(
                 provider: provider,
                 force: force,
+                lightweightMenuOpen: lightweightMenuOpen,
                 now: now,
                 codexHomePath: costScope.codexHomePath,
                 historyDays: historyDays,

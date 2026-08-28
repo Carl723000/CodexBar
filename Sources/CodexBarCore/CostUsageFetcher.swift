@@ -114,12 +114,14 @@ public struct CostUsageFetcher: Sendable {
         now: Date = Date(),
         codexHomePath: String? = nil,
         historyDays: Int = 30,
+        includeProjectAndSessionBreakdowns: Bool = true,
         calendar: Calendar? = nil) async -> CachedCodexTokenSnapshotResult?
     {
         await Self.loadCachedCodexTokenSnapshotResult(
             now: now,
             codexHomePath: codexHomePath,
             historyDays: historyDays,
+            includeProjectAndSessionBreakdowns: includeProjectAndSessionBreakdowns,
             scannerOptions: self.scannerOptions(calendar: calendar))
     }
 
@@ -221,6 +223,9 @@ public struct CostUsageFetcher: Sendable {
         allowPricingRefresh: Bool = true,
         refreshPricingInBackground: Bool = true,
         includePiSessions: Bool = true,
+        includeProjectAndSessionBreakdowns: Bool = true,
+        reuseCodexReportWhenSourcesAreUnchanged: Bool = false,
+        retainWiderCodexCacheWindow: Bool = true,
         bypassScannerDebounce: Bool,
         calendar: Calendar? = nil) async throws -> CostUsageTokenSnapshot
     {
@@ -240,6 +245,9 @@ public struct CostUsageFetcher: Sendable {
             allowPricingRefresh: allowPricingRefresh,
             refreshPricingInBackground: refreshPricingInBackground,
             includePiSessions: includePiSessions,
+            includeProjectAndSessionBreakdowns: includeProjectAndSessionBreakdowns,
+            reuseCodexReportWhenSourcesAreUnchanged: reuseCodexReportWhenSourcesAreUnchanged,
+            retainWiderCodexCacheWindow: retainWiderCodexCacheWindow,
             bypassScannerDebounce: bypassScannerDebounce,
             scannerOptions: options)
     }
@@ -382,6 +390,9 @@ public struct CostUsageFetcher: Sendable {
         allowPricingRefresh: Bool = true,
         refreshPricingInBackground: Bool = true,
         includePiSessions: Bool = true,
+        includeProjectAndSessionBreakdowns: Bool = true,
+        reuseCodexReportWhenSourcesAreUnchanged: Bool = false,
+        retainWiderCodexCacheWindow: Bool = true,
         bypassScannerDebounce: Bool = false,
         scannerOptions overrideScannerOptions: CostUsageScanner.Options? = nil,
         piScannerOptions overridePiScannerOptions: PiSessionCostScanner
@@ -485,6 +496,8 @@ public struct CostUsageFetcher: Sendable {
             allowVertexClaudeFallback: allowVertexClaudeFallback,
             forceRefresh: forceRefresh,
             bypassScannerDebounce: bypassScannerDebounce)
+        options.reuseCodexReportWhenSourcesAreUnchanged = reuseCodexReportWhenSourcesAreUnchanged
+        options.retainWiderCodexCacheWindow = retainWiderCodexCacheWindow
         var resolvedPiOptions = overridePiScannerOptions ?? PiSessionCostScanner.Options()
         if resolvedPiOptions.cacheRoot == nil {
             resolvedPiOptions.cacheRoot = options.cacheRoot
@@ -500,6 +513,7 @@ public struct CostUsageFetcher: Sendable {
             allowVertexClaudeFallback: allowVertexClaudeFallback,
             includePiSessions: includePiSessions,
             shouldMergePiUsage: shouldMergePiUsage,
+            includeProjectAndSessionBreakdowns: includeProjectAndSessionBreakdowns,
             scanOptions: scanOptions,
             piOptions: piOptions)
         let scanResult = try await Self.loadLocalTokenScanResult(
@@ -530,6 +544,9 @@ public struct CostUsageFetcher: Sendable {
                 allowPricingRefresh: allowPricingRefresh,
                 refreshPricingInBackground: false,
                 includePiSessions: includePiSessions,
+                includeProjectAndSessionBreakdowns: includeProjectAndSessionBreakdowns,
+                reuseCodexReportWhenSourcesAreUnchanged: reuseCodexReportWhenSourcesAreUnchanged,
+                retainWiderCodexCacheWindow: retainWiderCodexCacheWindow,
                 scannerOptions: options,
                 piScannerOptions: piOptions,
                 modelsDevClient: modelsDevClient,
@@ -560,6 +577,7 @@ public struct CostUsageFetcher: Sendable {
         let allowVertexClaudeFallback: Bool
         let includePiSessions: Bool
         let shouldMergePiUsage: Bool
+        let includeProjectAndSessionBreakdowns: Bool
         let scanOptions: CostUsageScanner.Options
         let piOptions: PiSessionCostScanner.Options
     }
@@ -606,7 +624,7 @@ public struct CostUsageFetcher: Sendable {
             var sessions: [CostUsageSessionBreakdown] = []
             var piDaily: CostUsageDailyReport?
             var staleSnapshotUpdatedAt: Date?
-            if provider == .codex {
+            if provider == .codex, options.includeProjectAndSessionBreakdowns {
                 let roots = CostUsageScanner.codexSessionsRoots(options: options.scanOptions)
                 let view = CostUsageStoreAccess.readView(
                     cacheRoot: options.scanOptions.cacheRoot,
@@ -890,7 +908,7 @@ public struct CostUsageFetcher: Sendable {
             let loadedCache = CostUsageStoreAccess.readView(
                 cacheRoot: options.cacheRoot,
                 calendar: options.calendar,
-                purpose: .report)
+                purpose: includeProjectAndSessionBreakdowns ? .report : .summary)
             let cache = loadedCache.scoped(to: roots)
             var reports: [CostUsageDailyReport] = []
             var projects: [CostUsageProjectBreakdown] = []

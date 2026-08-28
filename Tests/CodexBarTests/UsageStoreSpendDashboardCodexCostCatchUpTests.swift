@@ -382,6 +382,37 @@ struct UsageStoreSpendDashboardCodexCostCatchUpTests {
     }
 
     @Test
+    func `global low power mode cancels hidden dashboard catch-up`() throws {
+        let store = try Self.makeStore(suite: "global-low-power-hidden")
+        let accounts = [Self.account(id: "account", cacheIdentity: "cache-account")]
+        store.startSpendDashboardCodexCostCatchUpIfNeeded(accounts: accounts, mode: .accelerated)
+        #expect(store.spendDashboardCodexCostCatchUpTask != nil)
+
+        store.settings.backgroundWorkLowPowerModePreference = .on
+        store.synchronizeSpendDashboardCodexCostCatchUp(accounts: accounts, preferredMode: .automatic)
+
+        #expect(store.spendDashboardCodexCostCatchUpTask == nil)
+        #expect(store.spendDashboardCodexCostCatchUpActivity == nil)
+    }
+
+    @Test
+    func `global low power mode permits explicit visible dashboard catch-up`() throws {
+        let store = try Self.makeStore(suite: "global-low-power-visible")
+        store.settings.backgroundWorkLowPowerModePreference = .on
+        store._test_spendDashboardCodexCostCatchUpResourceStateOverride = {
+            (.ac, false, .nominal)
+        }
+
+        store.synchronizeSpendDashboardCodexCostCatchUp(
+            accounts: [Self.account(id: "account", cacheIdentity: "cache-account")],
+            preferredMode: .accelerated)
+
+        #expect(store.spendDashboardCodexCostCatchUpTask != nil)
+        #expect(store.spendDashboardCodexCostCatchUpMode == .accelerated)
+        store.cancelSpendDashboardCodexCostCatchUp()
+    }
+
+    @Test
     func `visible synchronization does not bypass serious thermal pressure`() throws {
         let store = try Self.makeStore(suite: "visible-respects-thermal-pressure")
         store._test_spendDashboardCodexCostCatchUpResourceStateOverride = {
