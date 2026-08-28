@@ -454,24 +454,32 @@ final class UsageStore {
     /// Energy/WidgetKit floor for expensive local-history scans and their additional snapshot publications.
     /// Faster provider refreshes still update quota/status normally, but reuse token-cost history within this TTL.
     static let minimumTokenFetchTTL: TimeInterval = 15 * 60
+    /// With refresh-on-open enabled, local token history is refreshed whenever the user asks to see it.
+    /// Keep the redundant low-power background scan sparse so large Codex ledgers do not incur a multi-second
+    /// materialization every 30 minutes while the provider quota itself continues on its normal cadence.
+    static let interactiveLowPowerTokenFetchTTL: TimeInterval = 6 * 60 * 60
 
     var tokenFetchTTL: TimeInterval? {
         Self.tokenFetchTTL(
             for: self.settings.refreshFrequency,
-            lowPowerModeEnabled: self.settings.backgroundWorkLowPowerModeEnabled)
+            lowPowerModeEnabled: self.settings.backgroundWorkLowPowerModeEnabled,
+            refreshAllProvidersOnMenuOpen: self.settings.refreshAllProvidersOnMenuOpen)
     }
 
     static func tokenFetchTTL(
         for frequency: RefreshFrequency,
-        lowPowerModeEnabled: Bool = false) -> TimeInterval?
+        lowPowerModeEnabled: Bool = false,
+        refreshAllProvidersOnMenuOpen: Bool = false) -> TimeInterval?
     {
         let interval = frequency.usesAdaptivePolicy
             ? AdaptiveRefreshPolicy.nominalIntervalForHeuristics
             : frequency.seconds
         let widgetSafeInterval = interval.map { max($0, Self.minimumTokenFetchTTL) }
-        return BackgroundWorkPowerPolicy.automaticInterval(
+        let powerLimitedInterval = BackgroundWorkPowerPolicy.automaticInterval(
             widgetSafeInterval,
             lowPowerModeEnabled: lowPowerModeEnabled)
+        guard lowPowerModeEnabled, refreshAllProvidersOnMenuOpen else { return powerLimitedInterval }
+        return powerLimitedInterval.map { max($0, Self.interactiveLowPowerTokenFetchTTL) }
     }
 
     @ObservationIgnored let tokenFetchTimeout: TimeInterval = 10 * 60
