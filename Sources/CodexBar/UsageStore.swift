@@ -378,6 +378,8 @@ final class UsageStore {
     @ObservationIgnored var spendDashboardCodexCostCatchUpStopRequested = false
     @ObservationIgnored var spendDashboardCodexCostCatchUpPassIsRunning = false
     @ObservationIgnored var spendDashboardCodexCostCatchUpRestartRequested = false
+    @ObservationIgnored var spendDashboardCodexCostCatchUpRetryNotBefore: Date?
+    @ObservationIgnored var spendDashboardCodexCostCatchUpRetryScopeSignature: String?
     @ObservationIgnored var forcedRefreshEnrichmentTask: Task<Void, Never>?
     @ObservationIgnored var forcedRefreshEnrichmentToken: UUID?
     @ObservationIgnored var pendingForcedRefreshEnrichmentTask: Task<Void, Never>?
